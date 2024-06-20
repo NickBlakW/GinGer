@@ -32,6 +32,8 @@ func GenerateLocalApiScripts(path string, engine *gin.Engine) {
 }
 
 func generateAsyncFunctionsJS(file *os.File, routes gin.RoutesInfo) {
+	var generatedAmount int
+
 	for i, route := range routes {
 		if strings.Contains(route.Path, "/ginger") {
 			continue
@@ -47,43 +49,48 @@ func generateAsyncFunctionsJS(file *os.File, routes gin.RoutesInfo) {
 		var jsLine string
 		
 		if route.Method == "GET" {
-			fetchUrl := fmt.Sprintf("const res = await fetch(\"%s\");", route.Path)
-
-		jsLine += utils.NoIndent(fetchUrl)
-		jsLine += utils.WithIndent("const jsonBody = await res.json();\n", 1)
-				
-		divId := fmt.Sprintf("div%d", i)
-		query := fmt.Sprintf("document.querySelector('#%s')", divId)
-
-		jsLine += utils.WithIndent(query, 1)
+			jsLine = generateGetRequest(route.Path, i)
 		} else if route.Method == "POST" {
-			jsLine += fmt.Sprintf("const res = await fetch(\"%s\", {", route.Path)
-			jsLine += utils.WithIndent("method: 'POST',", 2)
-
-			reqBody := "body: JSON.stringify({\n"
-			reqBody += fmt.Sprintf("")
-
-			jsLine += utils.WithIndent(reqBody, 2)
-
-			jsLine += utils.WithIndent("", 1)
+			jsLine = generatePostRequest(route.Path, i)
 		}
 
 		file.WriteString(utils.WithIndent(jsLine, 1))
+		file.WriteString(utils.NoIndent("}\n"))
 
-		file.WriteString(utils.NoIndent("}"))
-
-		fmt.Println(fmt.Sprintf("Generated %d functions", i))
+		generatedAmount = i+1
 	}
+
+	fmt.Printf("\tGenerated %d functions\n", generatedAmount)
 }
 
-func generateGetRequest(route string, jsLine string, index int) {
+func generateGetRequest(route string, index int) string {
 	fetchUrl := fmt.Sprintf("const res = await fetch(\"%s\");", route)
 
-	jsLine += utils.NoIndent(fetchUrl)
+	jsLine := utils.NoIndent(fetchUrl)
 	jsLine += utils.WithIndent("const jsonBody = await res.json();\n", 1)
-			
-	divId := fmt.Sprintf("div%d", index)
-	query := fmt.Sprintf("document.querySelector('#%s')", divId)
 
-	jsLine += utils.WithIndent(query, 1)
+	querySelect := fmt.Sprintf("document.querySelector('#div%d')\n\t\t.style.visibility = 'visible';\n", index)
+	jsLine += utils.WithIndent(querySelect, 1)
+
+	renderPre := fmt.Sprintf("\tdocument.querySelector('#pre%d').innerHTML =\n\t\tJSON.stringify(jsonBody, null, 2);", index)
+	jsLine += renderPre
+
+	return jsLine
+}
+
+func generatePostRequest(route string, index int) string {
+	fetchLine := fmt.Sprintf("const res = await fetch(\"%s\", {", route)
+
+	jsLine := utils.NoIndent(fetchLine)
+	jsLine += utils.WithIndent("method: 'POST',", 2)
+
+	reqBody := utils.WithIndent("body: JSON.stringify({", 2)
+	reqBody += utils.WithIndent(fmt.Sprintf("\tusername: \"something\""), 2)
+	reqBody += utils.WithIndent("}),", 2)
+
+	jsLine += reqBody
+
+	jsLine += utils.WithIndent("});", 1)
+
+	return jsLine
 }

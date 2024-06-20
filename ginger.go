@@ -23,6 +23,10 @@ func main() {
 	router.GET("/api", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{ "working": true })
 	})
+
+	router.POST("/api/post", func(ctx *gin.Context) {
+		ctx.String(http.StatusAccepted, "Post done!")
+	})
 	
 	UseGingerUi(config, router)
 
@@ -56,7 +60,7 @@ func UseGingerUi(config types.Config, ginEngine *gin.Engine) {
 	fmt.Println("Done!")
 	
 	fmt.Println("Generating element generator script...")
-	generators.GenerateUiElementScript(fmt.Sprintf("%sscripts/", path))
+	generators.GenerateUiElementScript(fmt.Sprintf("%sscripts/", path), ginEngine)
 	fmt.Println("Done!")
 	
 	basePath := strings.Split(path, ".")
