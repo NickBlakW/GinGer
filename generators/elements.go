@@ -50,9 +50,11 @@ func createElementJS(element string) string {
 }
 
 func generateGetElement(path string, index int) string {
-	jsLine := fmt.Sprintf("// #region GET-req%d\n", index)
+	jsLine := fmt.Sprintf("// #region GET-request%d\n", index)
 
-	jsLine += utils.WithIndent(fmt.Sprintf("const apiTitle%d = %s;", index, createElementJS("h2")), 1)
+	title := fmt.Sprintf("apiTitle%d", index)
+
+	jsLine += utils.WithIndent(fmt.Sprintf("const %s = %s;", title, createElementJS("h2")), 1)
 	jsLine += utils.WithIndent(fmt.Sprintf("apiTitle%d.innerText = '%s';\n", index, path), 1)
 
 	div := fmt.Sprintf("div%d", index)
@@ -61,7 +63,11 @@ func generateGetElement(path string, index int) string {
 	jsLine += utils.WithIndent(fmt.Sprintf("const %s = %s;", div, createElementJS("div")), 1)
 	jsLine += utils.WithIndent(fmt.Sprintf("const %s = %s;", button, createElementJS("button")), 1)
 	jsLine += utils.WithIndent(fmt.Sprintf("%s.innerText = 'Send';\n", button), 1)
+	
+	jsLine += utils.WithIndent(fmt.Sprintf("%s.appendChild(%s)", div, title), 1)
 	jsLine += utils.WithIndent(fmt.Sprintf("%s.appendChild(%s)", div, button), 1)
+	
+	jsLine += utils.WithIndent(fmt.Sprintf("document.body.insertAdjacentElement('beforeEnd', %s)", div), 1)
 
 	jsLine += utils.WithIndent("// #endregion", 1)
 
