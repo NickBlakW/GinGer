@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/NickBlakW/ginger/generators/utils"
+	"github.com/NickBlakW/ginger/requests"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,15 +21,19 @@ func GenerateLocalApiScripts(path string, engine *gin.Engine) {
 
 	defer file.Close()
 
-	file.WriteString(utils.NoIndent("function printHello() {"))
-	file.WriteString(utils.WithIndent("const msg = 'Hello from GinGer';", 1))
-	file.WriteString(utils.WithIndent("console.log(msg);", 1))
-	file.WriteString(utils.WithIndent("document.querySelector(body).innerHTML = msg;", 1))
-	file.WriteString(utils.NoIndent("}\n"))
+	file.WriteString(generateDefaultFuncsJS())
 
 	routes := engine.Routes()
 
 	generateAsyncFunctionsJS(file, routes)
+}
+
+func generateDefaultFuncsJS() string {
+	function := "function hideElement(id) {\n"
+	function += utils.WithIndent("document.querySelector(`#${id}`).style.display = 'none';", 1)
+	function += utils.NoIndent("}\n")
+
+	return function
 }
 
 func generateAsyncFunctionsJS(file *os.File, routes gin.RoutesInfo) {
@@ -67,30 +72,80 @@ func generateGetRequest(route string, index int) string {
 	fetchUrl := fmt.Sprintf("const res = await fetch(\"%s\");", route)
 
 	jsLine := utils.NoIndent(fetchUrl)
-	jsLine += utils.WithIndent("const jsonBody = await res.json();\n", 1)
-
-	querySelect := fmt.Sprintf("document.querySelector('#div%d')\n\t\t.style.visibility = 'visible';\n", index)
-	jsLine += utils.WithIndent(querySelect, 1)
-
-	renderPre := fmt.Sprintf("\tdocument.querySelector('#pre%d').innerHTML =\n\t\tJSON.stringify(jsonBody, null, 2);", index)
-	jsLine += renderPre
+	
+	jsLine += generateGetJSONLines(index)
 
 	return jsLine
 }
 
 func generatePostRequest(route string, index int) string {
-	fetchLine := fmt.Sprintf("const res = await fetch(\"%s\", {", route)
+	var dtoFields utils.DTOFields
 
-	jsLine := utils.NoIndent(fetchLine)
+	for _, req := range requests.APIRequestRegistry {
+		if req.Path != route {
+			return ""
+		}
+
+		dtoFields = utils.GetDTOFields(req.DTO)
+	}
+	
+	var inputs string
+	var inputFields string
+
+	for i, name := range dtoFields.Names {
+		var tempInput string
+		name = strings.ToLower(name[:1]) + name[1:] // lowercase first letter, rest remains the same
+
+		fieldName := fmt.Sprintf("%s%d", name, index)
+
+		for _, typ := range dtoFields.Types {
+			if typ == "number" {
+				tempInput = fmt.Sprintf("%s: %v,", name, name)
+			} else {
+				tempInput = fmt.Sprintf("%s: '%s',", name, name)
+			}
+		}
+
+		input := fmt.Sprintf("const %s = document.querySelector('#%s').value", name, fieldName)
+
+		// formatting
+		if i > 0 {
+			input = utils.WithIndent(input, 1)
+		}
+
+		inputs += utils.NoIndent(input)
+		inputFields += utils.WithIndent(tempInput, 3)
+	}
+
+	jsLine := utils.NoIndent(inputs)
+
+	fetchLine := fmt.Sprintf("const res = await fetch('%s', {", route)
+
+	jsLine += utils.WithIndent(fetchLine, 1)
 	jsLine += utils.WithIndent("method: 'POST',", 2)
 
 	reqBody := utils.WithIndent("body: JSON.stringify({", 2)
-	reqBody += utils.WithIndent(fmt.Sprintf("\tusername: \"something\""), 2)
+
+	reqBody += inputFields
+	
+	// handle request
 	reqBody += utils.WithIndent("}),", 2)
-
 	jsLine += reqBody
+	jsLine += utils.WithIndent("});\n", 1)
 
-	jsLine += utils.WithIndent("});", 1)
+	jsLine += generateGetJSONLines(index)
+
+	return jsLine
+}
+
+func generateGetJSONLines(index int) string {
+	jsLine := utils.WithIndent("const jsonBody = await res.json();\n", 1)
+
+	querySelect := fmt.Sprintf("document.querySelector('#in_div%d')\n\t\t.style.display = 'flex';\n", index)
+	jsLine += utils.WithIndent(querySelect, 1)
+
+	renderPre := fmt.Sprintf("\tdocument.querySelector('#pre%d').innerHTML =\n\t\tJSON.stringify(jsonBody, null, 2);", index)
+	jsLine += renderPre
 
 	return jsLine
 }

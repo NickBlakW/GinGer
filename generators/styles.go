@@ -26,6 +26,14 @@ h1 {
 button {
     width: 20vw;
 }
+
+pre {
+    background-color: #333;
+    color: #aaa;
+    width: 80vw;
+    min-height: 10%;
+    border-radius: 2px;
+}
 `
 
 func GenerateUiStyles(path string) {
