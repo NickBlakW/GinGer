@@ -33,6 +33,10 @@ func generateDefaultFuncsJS() string {
 	function += utils.WithIndent("document.querySelector(`#${id}`).style.display = 'none';", 1)
 	function += utils.NoIndent("}\n")
 
+	function += utils.NoIndent("function showElement(id) {")
+	function += utils.WithIndent("document.querySelector(`#${id}`).style.display = 'flex';", 1)
+	function += utils.NoIndent("}\n")
+
 	return function
 }
 

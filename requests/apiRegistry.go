@@ -7,6 +7,10 @@ type ApiRequest struct {
 	DTO any
 }
 
-func RegisterPostRequest(req ApiRequest) {
+func RegisterRequest(req ApiRequest) {
 	APIRequestRegistry = append(APIRequestRegistry, req)
+}
+
+func RegisterRequests(reqs []ApiRequest) {
+	APIRequestRegistry = append(APIRequestRegistry, reqs...)
 }

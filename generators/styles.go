@@ -27,6 +27,15 @@ button {
     width: 20vw;
 }
 
+div {
+    display: flex;
+    flex-direction: column;
+}
+
+input {
+    max-width: 50vw;
+}
+
 pre {
     background-color: #333;
     color: #aaa;

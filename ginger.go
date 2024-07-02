@@ -9,73 +9,21 @@ import (
 	"strings"
 
 	"github.com/NickBlakW/ginger/generators"
-	"github.com/NickBlakW/ginger/requests"
 	"github.com/NickBlakW/ginger/types"
 	"github.com/gin-gonic/gin"
 )
 
-type Person struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
+// func main() {
+// 	router := gin.Default()
 
-func handlePost(p Person) gin.HandlerFunc {
-	fn := func(ctx *gin.Context) {
-		messages := []string{
-			"this actually works!",
-			"ginger is amazing",
-		}
+// 	config := types.Config{
+// 		LocalApiPath: "./web",
+// 	}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"working": true,
-			"messages": messages,
-		})
-	}
+// 	UseGingerUi(config, router)
 
-	return gin.HandlerFunc(fn)
-}
-
-func main() {
-	router := gin.Default()
-
-	config := types.Config{
-		LocalApiPath: "./web",
-	}
-
-	router.GET("/api", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{ "working": true })
-	})
-
-
-	requests.RegisterPostRequest(requests.ApiRequest{Path: "/api/post", DTO: Person{}})
-	router.POST("/api/post", handlePost(Person{Username: "", Password: ""}))
-	// func(ctx *gin.Context) {
-	// 	var person Person
-
-	// 	if err := ctx.ShouldBindJSON(&person); err != nil {
-	// 		ctx.String(http.StatusBadRequest, "Err: %s", err)
-	// 	}
-
-	// 	ctx.String(http.StatusAccepted, "Post done!")
-	// }
-	// )
-
-	router.GET("/working/does_something", func(ctx *gin.Context) {
-		messages := []string{
-			"this actually works!",
-			"ginger is amazing",
-		}
-
-		ctx.JSON(http.StatusOK, gin.H{
-			"working": true,
-			"messages": messages,
-		})
-	})
-	
-	UseGingerUi(config, router)
-
-	router.Run()
-}
+// 	router.Run()
+// }
 
 // #region GinGer UI
 func UseGingerUi(config types.Config, ginEngine *gin.Engine) {
@@ -129,15 +77,4 @@ func UseGingerUi(config types.Config, ginEngine *gin.Engine) {
 	})
 	//#endregion
 }
-// #endregion
-
-// #region APIService handlers
-type APIService struct {
-
-}
-
-func RegisterAPIService() {
-
-}
-
 // #endregion
