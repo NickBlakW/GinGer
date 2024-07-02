@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/NickBlakW/ginger/generators/utils"
+	"github.com/nickblakw/ginger/generators/utils"
 )
 
 func GenerateHTMLTemplate() {
