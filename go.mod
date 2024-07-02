@@ -1,4 +1,4 @@
-module github.com/NickBlakW/ginger
+module github.com/nickblakw/ginger
 
 go 1.22.4
 

@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/NickBlakW/ginger/types"
 	"github.com/gin-gonic/gin"
+	"github.com/nickblakw/ginger/types"
 )
 
 func TestGingerGeneratesFiles(t *testing.T) {

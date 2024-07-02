@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/NickBlakW/ginger/generators"
-	"github.com/NickBlakW/ginger/types"
 	"github.com/gin-gonic/gin"
+	"github.com/nickblakw/ginger/generators"
+	"github.com/nickblakw/ginger/types"
 )
 
 // func main() {

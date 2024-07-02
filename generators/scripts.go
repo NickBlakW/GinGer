@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/NickBlakW/ginger/generators/utils"
-	"github.com/NickBlakW/ginger/requests"
 	"github.com/gin-gonic/gin"
+	"github.com/nickblakw/ginger/generators/utils"
+	"github.com/nickblakw/ginger/requests"
 )
 
 func GenerateLocalApiScripts(path string, engine *gin.Engine) {
